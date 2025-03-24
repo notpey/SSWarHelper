@@ -4,44 +4,74 @@
   <meta charset="UTF-8">
   <title>Naruto-Arena Clan War Tracker</title>
   <style>
+    /* CSS Variables for light/dark mode */
+    :root {
+      --bg-color: #f0f2f5;
+      --text-color: #333;
+      --container-bg: #fff;
+      --border-color: #ced4da;
+      --button-bg: #007bff;
+      --button-active: #0056b3;
+    }
+    body.dark-mode {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --container-bg: #1e1e1e;
+      --border-color: #444;
+      --button-bg: #333;
+      --button-active: #555;
+    }
     /* Global Styles */
     body {
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f0f2f5;
+      background-color: var(--bg-color);
+      color: var(--text-color);
       margin: 0;
       padding: 20px;
-      color: #333;
+      transition: background-color 0.3s, color 0.3s;
     }
     header {
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    header .nav-buttons {
+      flex: 1;
     }
     header button {
       padding: 10px 20px;
-      margin: 0 5px;
+      margin: 5px;
       border: none;
       border-radius: 4px;
-      background-color: #007bff;
+      background-color: var(--button-bg);
       color: white;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
     header button.active {
-      background-color: #0056b3;
+      background-color: var(--button-active);
     }
+    header #toggleDarkMode {
+      background-color: var(--button-bg);
+    }
+    /* Page container */
     .page {
       display: none;
+      background-color: var(--container-bg);
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 20px;
     }
     .page.active {
       display: block;
     }
-    /* Form and Container Styling */
+    /* Form Styles */
     form {
       max-width: 800px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 15px;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
+      margin: 0 auto 20px auto;
     }
     form label {
       display: block;
@@ -51,27 +81,44 @@
       width: 100%;
       padding: 8px;
       margin-bottom: 10px;
-      border: 1px solid #ced4da;
+      border: 1px solid var(--border-color);
       border-radius: 4px;
+      background-color: var(--container-bg);
+      color: var(--text-color);
     }
-    button {
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--button-bg);
+      color: white;
       cursor: pointer;
     }
-    /* Table Styling */
-    table {
+    /* Game Row styling */
+    .game-row {
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    .team-picker-slot {
+      border: 2px dashed var(--border-color);
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 5px;
+    }
+    .team-picker-slot img {
+      width: 40px;
+      height: 40px;
+      margin: 2px;
+    }
+    .winner-select {
+      padding: 6px;
+      font-size: 14px;
       width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    table, th, td {
-      border: 1px solid #ccc;
-    }
-    th, td {
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #e9ecef;
     }
     /* Modal for Character Picker */
     #characterPickerModal {
@@ -84,13 +131,14 @@
       z-index: 1000;
     }
     #characterPickerModal .modal-content {
-      background: #fff;
+      background: var(--container-bg);
       padding: 20px;
       border-radius: 6px;
       max-width: 600px;
       width: 90%;
       max-height: 80%;
       overflow-y: auto;
+      color: var(--text-color);
     }
     #pickerGrid {
       display: grid;
@@ -116,36 +164,79 @@
       display: block;
       margin: 0 auto;
     }
-    /* Simple list styling for Manage page */
+    /* Table styling for stats */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid var(--border-color);
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: var(--bg-color);
+    }
+    /* Character stats cell: image and name */
+    .char-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .char-cell img {
+      width: 30px;
+      height: 30px;
+      border-radius: 3px;
+      margin-bottom: 3px;
+    }
+    /* Item list for Manage page */
     .item-list {
       list-style-type: none;
       padding: 0;
     }
     .item-list li {
       padding: 5px;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid var(--border-color);
       cursor: pointer;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      form input, form select, form textarea {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- Header Navigation -->
   <header>
-    <button id="btnMatchEntry" class="active">Match Entry</button>
-    <button id="btnImportLogs">Import Logs</button>
-    <button id="btnStats">Statistics</button>
-    <button id="btnManage">Manage</button>
+    <div class="nav-buttons">
+      <button id="btnMatchEntry" class="active">Match Entry</button>
+      <button id="btnImportLogs">Import Logs</button>
+      <button id="btnStats">Statistics</button>
+      <button id="btnManage">Manage</button>
+    </div>
+    <button id="toggleDarkMode">Toggle Dark Mode</button>
   </header>
 
   <!-- Match Entry Page -->
   <div id="matchEntryPage" class="page active">
     <form id="matchEntryForm">
       <h2>Match Entry</h2>
-      <label for="matchDate">Match Date/Time:</label>
-      <input type="datetime-local" id="matchDate">
-      
       <label for="eventName">Event Name:</label>
       <input type="text" id="eventName" placeholder="e.g., Supreme Championship 11">
+      
+      <label for="weekInput">Week/Round:</label>
+      <input type="text" id="weekInput" placeholder="e.g., Round 3 or Week 12">
+      
+      <label for="banListEntry">Ban List (Optional):</label>
+      <textarea id="banListEntry" placeholder="Enter ban list rules for this week, one per line"></textarea>
       
       <label for="clan1">Your Clan:</label>
       <select id="clan1"></select>
@@ -163,9 +254,11 @@
       <select id="player2"></select>
       <input type="text" id="player2Text" placeholder="Or enter new player">
       
-      <h3>Game Details (Best of 5)</h3>
-      <div id="gameRows"></div>
-      <button type="button" id="saveMatchButton">Save Match Set</button>
+      <h3>Game Details</h3>
+      <div id="gameRowsContainer"></div>
+      <button type="button" id="addGameButton" class="btn">+ Add Game</button>
+      <br>
+      <button type="button" id="saveMatchButton" class="btn">Save Match Set</button>
     </form>
     <div id="savedMatchesContainer">
       <h3>Saved Match Sets</h3>
@@ -180,15 +273,27 @@
       <label for="importEventName">Event Name:</label>
       <input type="text" id="importEventName" placeholder="e.g., Supreme Championship 11">
       
+      <label for="importWeek">Week/Round:</label>
+      <input type="text" id="importWeek" placeholder="e.g., Round 2">
+      
+      <label for="importBanList">Ban List (Optional):</label>
+      <textarea id="importBanList" placeholder="Enter ban list rules for this round"></textarea>
+      
       <label for="importClan1">Your Clan:</label>
       <input type="text" id="importClan1" placeholder="e.g., Legends Rebirth">
+      
+      <label for="importPlayer1">Your Player Name:</label>
+      <input type="text" id="importPlayer1" placeholder="e.g., Zonanorte">
       
       <label for="importClan2">Opponent Clan:</label>
       <input type="text" id="importClan2" placeholder="e.g., Arise">
       
+      <label for="importPlayer2">Opponent Player Name:</label>
+      <input type="text" id="importPlayer2" placeholder="e.g., Cabra">
+      
       <label for="logTextarea">Paste Match Logs (one per line):</label>
       <textarea id="logTextarea" rows="10" placeholder="March 15, 2025 16:11    Peypey (Lee S Kakashi S Fukai) vs Tragicksz (Lee S Fuguki Dodai)    Winner Peypey"></textarea>
-      <button type="button" id="importLogsButton">Import Logs</button>
+      <button type="button" id="importLogsButton" class="btn">Import Logs</button>
     </form>
   </div>
 
@@ -196,13 +301,29 @@
   <div id="statsPage" class="page">
     <h2>Statistics</h2>
     <div id="statsControls">
-      <button id="exportStatsButton">Export Stats Data</button>
+      <button id="exportStatsButton" class="btn">Export Stats Data</button>
       <input type="file" id="statsFile" accept=".json">
-      <button id="importStatsButton">Import Stats Data</button>
-      <button id="clearAllStatsButton">Clear All Stats</button>
-      <label style="margin-left: 10px;">
-        <input type="checkbox" id="sortByWinRateCheckbox"> Sort by Win Rate
-      </label>
+      <button id="importStatsButton" class="btn">Import Stats Data</button>
+      <button id="clearAllStatsButton" class="btn">Clear All Stats</button>
+      <br>
+      <label for="weekFilter">Filter by Week/Round (leave empty for all):</label>
+      <input type="text" id="weekFilter" placeholder="e.g., Round 3">
+      <br>
+      <label for="charSortMode">Sort Characters By:</label>
+      <select id="charSortMode">
+        <option value="winRate">Win Rate</option>
+        <option value="usage">Usage</option>
+        <option value="alphabetical">Alphabetical</option>
+      </select>
+      <br>
+      <label for="teamSortMode">Sort Teams By:</label>
+      <select id="teamSortMode">
+        <option value="winRate">Win Rate</option>
+        <option value="usage">Usage</option>
+        <option value="alphabetical">Alphabetical</option>
+      </select>
+      <br>
+      <button id="applyStatsFilter" class="btn">Apply Filter</button>
     </div>
     <div id="statsOutput"></div>
   </div>
@@ -214,7 +335,7 @@
       <h3>Clans</h3>
       <form id="clanForm">
         <input type="text" id="newClanInput" placeholder="Enter new clan name">
-        <button type="button" id="addClanButton">Add Clan</button>
+        <button type="button" id="addClanButton" class="btn">Add Clan</button>
       </form>
       <ul id="clanList" class="item-list"></ul>
     </div>
@@ -223,30 +344,30 @@
       <form id="playerForm">
         <input type="text" id="newPlayerInput" placeholder="Enter new player name">
         <select id="playerClanSelect"></select>
-        <button type="button" id="addPlayerButton">Add Player</button>
+        <button type="button" id="addPlayerButton" class="btn">Add Player</button>
       </form>
       <ul id="playerList" class="item-list"></ul>
     </div>
   </div>
 
-  <!-- Character Picker Modal (for Match Entry team selection) -->
+  <!-- Import Characters JSON Section -->
+  <div id="importCharactersSection" style="max-width:800px; margin: 20px auto; background-color: var(--container-bg); padding:15px; border:1px solid var(--border-color); border-radius:6px;">
+    <h3>Import Characters JSON</h3>
+    <input type="file" id="jsonFile" accept=".json">
+    <button id="loadJsonButton" class="btn">Load Characters</button>
+  </div>
+
+  <!-- Character Picker Modal -->
   <div id="characterPickerModal">
     <div class="modal-content">
       <h3>Select 3 Characters</h3>
       <input type="text" id="pickerFilter" placeholder="Search characters...">
       <div id="pickerGrid"></div>
       <div style="text-align: center; margin-top: 10px;">
-        <button id="confirmPicker">Confirm</button>
-        <button id="cancelPicker">Cancel</button>
+        <button id="confirmPicker" class="btn">Confirm</button>
+        <button id="cancelPicker" class="btn">Cancel</button>
       </div>
     </div>
-  </div>
-
-  <!-- Import Characters JSON Section -->
-  <div id="importCharactersSection" style="max-width:800px; margin: 20px auto; background:#fff; padding:15px; border:1px solid #ced4da; border-radius:6px;">
-    <h3>Import Characters JSON</h3>
-    <input type="file" id="jsonFile" accept=".json">
-    <button id="loadJsonButton">Load Characters</button>
   </div>
 
   <script>
@@ -256,16 +377,21 @@
     let clans = JSON.parse(localStorage.getItem("clans")) || [];
     let players = JSON.parse(localStorage.getItem("players")) || [];
     
-    // For the modal picker (Match Entry)
-    let pickerContext = {}; // { gameIndex, side }
+    // For the modal picker in match entry
+    let pickerContext = {}; // { gameIndex }
     let selectedPickerChars = [];
-
-    // Utility: Save to localStorage
+    
+    /***** Utility Functions *****/
     function saveData() {
       localStorage.setItem("savedMatchSets", JSON.stringify(savedMatchSets));
       localStorage.setItem("clans", JSON.stringify(clans));
       localStorage.setItem("players", JSON.stringify(players));
     }
+    
+    /***** Dark Mode Toggle *****/
+    document.getElementById("toggleDarkMode").addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+    });
     
     /***** Navigation Between Pages *****/
     const pages = {
@@ -274,69 +400,98 @@
       stats: document.getElementById('statsPage'),
       manage: document.getElementById('managePage')
     };
-    
     function showPage(pageId) {
       Object.values(pages).forEach(p => p.classList.remove('active'));
       pages[pageId].classList.add('active');
-      // Update header buttons
       document.querySelectorAll("header button").forEach(btn => btn.classList.remove("active"));
       document.getElementById("btn" + pageId.charAt(0).toUpperCase() + pageId.slice(1)).classList.add("active");
-      if (pageId === "matchEntry") renderSavedMatches();
-      if (pageId === "stats") renderStats();
-      if (pageId === "manage") { renderClanList(); renderPlayerList(); updatePlayerClanSelect(); }
+      if(pageId === "matchEntry") renderSavedMatches();
+      if(pageId === "stats") renderStats();
+      if(pageId === "manage") { renderClanList(); renderPlayerList(); updatePlayerClanSelect(); }
     }
     document.getElementById('btnMatchEntry').addEventListener('click', () => showPage("matchEntry"));
     document.getElementById('btnImportLogs').addEventListener('click', () => showPage("importLogs"));
     document.getElementById('btnStats').addEventListener('click', () => showPage("stats"));
     document.getElementById('btnManage').addEventListener('click', () => showPage("manage"));
     
-    /***** Match Entry Page Functions *****/
-    // Initialize game rows (Best of 5)
-    function initGameRows() {
-      const container = document.getElementById("gameRows");
-      container.innerHTML = "";
-      for (let g = 0; g < 5; g++) {
-        const rowDiv = document.createElement("div");
-        rowDiv.className = "game-row";
-        rowDiv.dataset.gameIndex = g;
-        rowDiv.style.border = "1px solid #ccc";
-        rowDiv.style.padding = "10px";
-        rowDiv.style.marginBottom = "10px";
-        rowDiv.innerHTML = `
-          <h4>Game ${g+1}</h4>
-          <div style="display:flex; gap:10px;">
-            <div style="flex:1;">
-              <strong>Your Team:</strong>
-              <div class="team-picker-slot" data-game="${g}" data-side="team1" style="border: 2px dashed #aaa; padding:5px; text-align:center; cursor:pointer;">
-                Double-click to select team
-              </div>
-            </div>
-            <div style="flex:1;">
-              <strong>Opponent Team:</strong>
-              <div class="team-picker-slot" data-game="${g}" data-side="team2" style="border: 2px dashed #aaa; padding:5px; text-align:center; cursor:pointer;">
-                Double-click to select team
-              </div>
-            </div>
-          </div>
-          <label>Winner:</label>
-          <select class="winner-select" data-game="${g}">
-            <option value="">--</option>
-            <option value="team1">Your Team</option>
-            <option value="team2">Opponent Team</option>
-          </select>
-        `;
-        // Add double-click event for team selection
-        rowDiv.querySelectorAll(".team-picker-slot").forEach(slot => {
-          slot.addEventListener('dblclick', () => {
-            openTeamPicker(parseInt(slot.dataset.game), slot.dataset.side);
-          });
+    /***** MATCH ENTRY PAGE FUNCTIONS *****/
+    // Dynamic Game Rows
+    function createGameRow(gameIndex) {
+      const row = document.createElement("div");
+      row.className = "game-row";
+      row.dataset.gameIndex = gameIndex;
+      row.innerHTML = `
+        <h4>Game ${gameIndex+1} <button type="button" class="deleteGameBtn" style="float:right;">Delete</button></h4>
+        <label>Your Team:</label>
+        <div class="team-picker-slot" data-game="${gameIndex}" data-side="team1">
+          Double-click to select team
+        </div>
+        <label>Opponent Team:</label>
+        <div class="team-picker-slot" data-game="${gameIndex}" data-side="team2">
+          Double-click to select team
+        </div>
+        <label>Winner:</label>
+        <select class="winner-select" data-game="${gameIndex}">
+          <option value="">--Select Winner--</option>
+        </select>
+      `;
+      // Delete button for game row
+      row.querySelector(".deleteGameBtn").addEventListener("click", () => {
+        row.remove();
+        updateGameRowIndices();
+      });
+      // Double-click to open team picker for both sides
+      row.querySelectorAll(".team-picker-slot").forEach(slot => {
+        slot.addEventListener("dblclick", () => {
+          openTeamPicker(parseInt(slot.dataset.game), slot.dataset.side);
         });
-        container.appendChild(rowDiv);
-      }
+      });
+      return row;
+    }
+    function updateGameRowIndices() {
+      const rows = document.querySelectorAll("#gameRowsContainer .game-row");
+      rows.forEach((row, i) => {
+        row.dataset.gameIndex = i;
+        row.querySelector("h4").textContent = "Game " + (i+1);
+        // Also update data attributes for child elements
+        row.querySelectorAll("[data-game]").forEach(el => {
+          el.dataset.game = i;
+        });
+      });
+    }
+    // Initialize with one game row
+    function initGameRows() {
+      const container = document.getElementById("gameRowsContainer");
+      container.innerHTML = "";
+      container.appendChild(createGameRow(0));
+      updateWinnerOptions();
     }
     initGameRows();
     
-    // Open character picker modal
+    document.getElementById("addGameButton").addEventListener("click", () => {
+      const container = document.getElementById("gameRowsContainer");
+      const newIndex = container.children.length;
+      container.appendChild(createGameRow(newIndex));
+      updateWinnerOptions();
+    });
+    
+    // Update winner dropdown options in each game row based on player names
+    function updateWinnerOptions() {
+      const p1 = document.getElementById("player1").value || document.getElementById("player1Text").value || "Your Player";
+      const p2 = document.getElementById("player2").value || document.getElementById("player2Text").value || "Opponent Player";
+      document.querySelectorAll(".winner-select").forEach(sel => {
+        sel.innerHTML = `<option value="">--Select Winner--</option>
+                         <option value="team1">Winner: ${p1}</option>
+                         <option value="team2">Winner: ${p2}</option>`;
+      });
+    }
+    // Update winner options when player fields change
+    document.getElementById("player1").addEventListener("change", updateWinnerOptions);
+    document.getElementById("player1Text").addEventListener("input", updateWinnerOptions);
+    document.getElementById("player2").addEventListener("change", updateWinnerOptions);
+    document.getElementById("player2Text").addEventListener("input", updateWinnerOptions);
+    
+    // Open team picker modal
     function openTeamPicker(gameIndex, side) {
       pickerContext = { gameIndex, side };
       selectedPickerChars = [];
@@ -344,8 +499,7 @@
       renderPickerGrid("");
       document.getElementById("characterPickerModal").style.display = "flex";
     }
-    
-    // Render picker grid with filter text
+    // Render picker grid with filter
     function renderPickerGrid(filterText) {
       const grid = document.getElementById("pickerGrid");
       grid.innerHTML = "";
@@ -378,7 +532,6 @@
     document.getElementById("pickerFilter").addEventListener("input", (e) => {
       renderPickerGrid(e.target.value);
     });
-    
     document.getElementById("confirmPicker").addEventListener("click", () => {
       if (selectedPickerChars.length !== 3) {
         alert("Please select exactly 3 characters.");
@@ -390,9 +543,9 @@
       if (slot) {
         slot.innerHTML = "";
         team.forEach(char => {
-          slot.innerHTML += `<img src="${char.url}" alt="${char.name}" style="width:40px;height:40px; margin:2px;">`;
+          slot.innerHTML += `<img src="${char.url}" alt="${char.name}">`;
         });
-        slot.dataset.teamData = JSON.stringify(team); // Store team info
+        slot.dataset.teamData = JSON.stringify(team);
       }
       document.getElementById("characterPickerModal").style.display = "none";
     });
@@ -400,43 +553,42 @@
       document.getElementById("characterPickerModal").style.display = "none";
     });
     
-    // Save Match Set from form
+    // Save Match Set from Match Entry form
     document.getElementById("saveMatchButton").addEventListener("click", saveMatchSet);
     function saveMatchSet() {
-      const matchDate = document.getElementById("matchDate").value;
       const eventName = document.getElementById("eventName").value.trim();
-      
-      // Get clan and player info from select or text field
+      const week = document.getElementById("weekInput").value.trim();
+      const banList = document.getElementById("banListEntry").value.trim();
       const clan1 = document.getElementById("clan1").value || document.getElementById("clan1Text").value.trim();
       const player1 = document.getElementById("player1").value || document.getElementById("player1Text").value.trim();
       const clan2 = document.getElementById("clan2").value || document.getElementById("clan2Text").value.trim();
       const player2 = document.getElementById("player2").value || document.getElementById("player2Text").value.trim();
       
-      if (!matchDate || !eventName || !clan1 || !clan2 || !player1 || !player2) {
-        alert("Please fill out all fields.");
+      if (!eventName || !week || !clan1 || !clan2 || !player1 || !player2) {
+        alert("Please fill out all required fields.");
         return;
       }
-      
       const matchSet = {
-        matchDate,
         event: eventName,
+        week: week,
+        banList: banList,
         clan1, player1,
         clan2, player2,
         games: []
       };
-      
-      // Loop through game rows and capture team selections and winner
-      for (let g = 0; g < 5; g++) {
+      // Loop through game rows
+      document.querySelectorAll("#gameRowsContainer .game-row").forEach(row => {
         const gameData = { team1: [], team2: [], winner: "" };
-        const team1Slot = document.querySelector(`.team-picker-slot[data-game="${g}"][data-side="team1"]`);
-        const team2Slot = document.querySelector(`.team-picker-slot[data-game="${g}"][data-side="team2"]`);
+        const gameIndex = row.dataset.gameIndex;
+        const team1Slot = row.querySelector(`.team-picker-slot[data-side="team1"]`);
+        const team2Slot = row.querySelector(`.team-picker-slot[data-side="team2"]`);
         if (team1Slot && team1Slot.dataset.teamData) {
           gameData.team1 = JSON.parse(team1Slot.dataset.teamData);
         }
         if (team2Slot && team2Slot.dataset.teamData) {
           gameData.team2 = JSON.parse(team2Slot.dataset.teamData);
         }
-        const sel = document.querySelector(`select.winner-select[data-game="${g}"]`);
+        const sel = row.querySelector(`select.winner-select`);
         if (sel) {
           gameData.winner = sel.value;
         }
@@ -444,24 +596,22 @@
         if (gameData.team1.length === 3 && gameData.team2.length === 3) {
           matchSet.games.push(gameData);
         }
-      }
-      
-      // Determine final set winner based on wins
+      });
+      // Determine final set winner
       let team1Wins = 0, team2Wins = 0;
       matchSet.games.forEach(game => {
         if (game.winner === "team1") team1Wins++;
         if (game.winner === "team2") team2Wins++;
       });
       matchSet.finalSetWinner = team1Wins >= 3 ? "team1" : (team2Wins >= 3 ? "team2" : "");
-      
       savedMatchSets.push(matchSet);
       saveData();
       alert("Match set saved!");
       document.getElementById("matchEntryForm").reset();
       initGameRows();
+      updateWinnerOptions();
       renderSavedMatches();
     }
-    
     // Render saved match sets
     function renderSavedMatches() {
       const container = document.getElementById("savedMatchesList");
@@ -472,23 +622,24 @@
       }
       savedMatchSets.forEach((setObj, idx) => {
         const div = document.createElement("div");
-        div.style.border = "1px solid #ccc";
+        div.style.border = "1px solid var(--border-color)";
         div.style.padding = "10px";
         div.style.marginBottom = "10px";
         let gamesHtml = "";
         setObj.games.forEach((game, gi) => {
           let team1Imgs = game.team1.map(c => `<img src="${c.url}" alt="${c.name}" style="width:30px;height:30px;margin-right:2px;">`).join("");
           let team2Imgs = game.team2.map(c => `<img src="${c.url}" alt="${c.name}" style="width:30px;height:30px;margin-right:2px;">`).join("");
-          gamesHtml += `<p><strong>Game ${gi+1}:</strong> Your Team: ${team1Imgs} vs Opponent Team: ${team2Imgs} | Winner: ${game.winner}</p>`;
+          gamesHtml += `<p><strong>Game ${gi+1}:</strong> Your Team: ${team1Imgs} vs Opponent Team: ${team2Imgs} | Winner: ${game.winner === "team1" ? setObj.player1 : (game.winner === "team2" ? setObj.player2 : "--")}</p>`;
         });
         div.innerHTML = `
-          <p><strong>Date:</strong> ${setObj.matchDate}</p>
           <p><strong>Event:</strong> ${setObj.event}</p>
+          <p><strong>Week/Round:</strong> ${setObj.week}</p>
+          <p><strong>Ban List:</strong><br>${setObj.banList.replace(/\n/g, "<br>") || "None"}</p>
           <p><strong>Clans:</strong> ${setObj.clan1} vs ${setObj.clan2}</p>
           <p><strong>Players:</strong> ${setObj.player1} vs ${setObj.player2}</p>
-          <p><strong>Final Set Winner:</strong> ${setObj.finalSetWinner}</p>
+          <p><strong>Final Set Winner:</strong> ${setObj.finalSetWinner === "team1" ? setObj.player1 : (setObj.finalSetWinner === "team2" ? setObj.player2 : "Undecided")}</p>
           ${gamesHtml}
-          <button onclick="deleteMatchSet(${idx})" style="padding:4px 8px;">Delete</button>
+          <button onclick="deleteMatchSet(${idx})" class='btn' style="padding:4px 8px;">Delete</button>
         `;
         container.appendChild(div);
       });
@@ -501,8 +652,8 @@
       }
     }
     
-    /***** Import Logs Page Functions *****/
-    // Simple Levenshtein distance function for fuzzy matching
+    /***** IMPORT LOGS PAGE FUNCTIONS *****/
+    // Simple Levenshtein distance for fuzzy matching
     function levenshtein(a, b) {
       const matrix = [];
       for (let i = 0; i <= b.length; i++) {
@@ -526,7 +677,6 @@
       }
       return matrix[b.length][a.length];
     }
-    
     function fuzzyMatch(input, candidates) {
       input = input.toLowerCase();
       let bestMatch = null;
@@ -540,7 +690,6 @@
       });
       return (bestDistance <= Math.max(1, input.length * 0.4)) ? bestMatch : input;
     }
-    
     // Parse a single log line
     function parseLogLine(line) {
       // Expected format:
@@ -548,8 +697,8 @@
       const regex = /^(.+?)\s+(.+?)\s*\((.+?)\)\s+vs\s+(.+?)\s*\((.+?)\)\s+Winner\s+(.+)$/i;
       const match = line.match(regex);
       if (!match) return null;
-      const [_, dateStr, player1, team1Str, player2, team2Str, winner] = match;
-      // Split teams into tokens
+      const [_, dateStr, p1, team1Str, p2, team2Str, winner] = match;
+      // Split teams
       let team1Tokens = team1Str.split(" ").filter(t => t.trim() !== "");
       let team2Tokens = team2Str.split(" ").filter(t => t.trim() !== "");
       const characterNames = characters.map(c => c.name);
@@ -558,28 +707,30 @@
       const team1 = team1Tokens.map(token => characters.find(c => c.name === token) || { name: token, url: "" });
       const team2 = team2Tokens.map(token => characters.find(c => c.name === token) || { name: token, url: "" });
       let winnerSide = "";
-      if (winner.trim().toLowerCase() === player1.trim().toLowerCase()) {
+      if (winner.trim().toLowerCase() === p1.trim().toLowerCase()) {
         winnerSide = "team1";
-      } else if (winner.trim().toLowerCase() === player2.trim().toLowerCase()) {
+      } else if (winner.trim().toLowerCase() === p2.trim().toLowerCase()) {
         winnerSide = "team2";
       }
       return {
         date: new Date(dateStr).toISOString(),
-        player1: player1.trim(),
+        player1: p1.trim(),
         team1,
-        player2: player2.trim(),
+        player2: p2.trim(),
         team2,
         winner: winnerSide
       };
     }
-    
-    document.getElementById("importLogsButton").addEventListener("click", importLogs);
-    function importLogs() {
+    document.getElementById("importLogsButton").addEventListener("click", () => {
       const eventName = document.getElementById("importEventName").value.trim();
+      const week = document.getElementById("importWeek").value.trim();
+      const banList = document.getElementById("importBanList").value.trim();
       const clan1 = document.getElementById("importClan1").value.trim();
+      const player1 = document.getElementById("importPlayer1").value.trim();
       const clan2 = document.getElementById("importClan2").value.trim();
+      const player2 = document.getElementById("importPlayer2").value.trim();
       const logText = document.getElementById("logTextarea").value;
-      if (!eventName || !clan1 || !clan2 || !logText) {
+      if (!eventName || !week || !clan1 || !clan2 || !player1 || !player2 || !logText) {
         alert("Please fill out all fields and paste log text.");
         return;
       }
@@ -593,7 +744,7 @@
         alert("No valid log lines parsed.");
         return;
       }
-      // Group games by player1, player2, and date (using the date portion)
+      // Group games by player names and date (by day)
       const groups = {};
       parsedGames.forEach(game => {
         const dateKey = game.date.split("T")[0];
@@ -605,11 +756,12 @@
         const games = groups[key];
         const firstGame = games[0];
         const matchSet = {
-          matchDate: firstGame.date,
           event: eventName,
-          clan1,
+          week: week,
+          banList: banList,
+          clan1: clan1,
           player1: firstGame.player1,
-          clan2,
+          clan2: clan2,
           player2: firstGame.player2,
           games: games.map(g => ({
             team1: g.team1,
@@ -628,14 +780,14 @@
       saveData();
       alert("Logs imported successfully!");
       document.getElementById("logImportForm").reset();
-    }
+    });
     
-    /***** Statistics Functions *****/
+    /***** STATISTICS PAGE FUNCTIONS *****/
     const statsOutput = document.getElementById('statsOutput');
     document.getElementById('exportStatsButton').addEventListener('click', exportStatsData);
     document.getElementById('importStatsButton').addEventListener('click', importStatsData);
     document.getElementById('clearAllStatsButton').addEventListener('click', clearAllStats);
-    document.getElementById('sortByWinRateCheckbox').addEventListener('change', renderStats);
+    document.getElementById('applyStatsFilter').addEventListener('click', renderStats);
     function exportStatsData() {
       const dataStr = JSON.stringify(savedMatchSets, null, 2);
       const blob = new Blob([dataStr], { type: "application/json" });
@@ -680,19 +832,22 @@
       renderStats();
     }
     function renderStats() {
-      statsOutput.innerHTML = "";
-      if (!Array.isArray(savedMatchSets) || savedMatchSets.length === 0) {
-        statsOutput.innerHTML = "<p>No match data to show. Import or create some match sets first.</p>";
+      // Apply week filter if provided
+      const weekFilter = document.getElementById("weekFilter").value.trim().toLowerCase();
+      const sortCharMode = document.getElementById("charSortMode").value;
+      const sortTeamMode = document.getElementById("teamSortMode").value;
+      const filteredSets = weekFilter ? savedMatchSets.filter(set => set.week.toLowerCase().includes(weekFilter)) : savedMatchSets;
+      if (filteredSets.length === 0) {
+        statsOutput.innerHTML = "<p>No match data to show for the selected week.</p>";
         return;
       }
-      const sortByWinRate = document.getElementById('sortByWinRateCheckbox').checked;
       const playerStats = {};
       const clanStats = {};
       const charStats = {};
       const teamStats = {};
       
-      savedMatchSets.forEach(setObj => {
-        // Player Stats
+      filteredSets.forEach(setObj => {
+        // Player stats
         if (setObj.player1) {
           if (!playerStats[setObj.player1]) playerStats[setObj.player1] = { setsPlayed: 0, setsWon: 0 };
           playerStats[setObj.player1].setsPlayed++;
@@ -707,7 +862,7 @@
         if (setObj.finalSetWinner === "team2" && setObj.player2) {
           playerStats[setObj.player2].setsWon++;
         }
-        // Clan Stats
+        // Clan stats
         if (setObj.clan1) {
           if (!clanStats[setObj.clan1]) clanStats[setObj.clan1] = { setsPlayed: 0, setsWon: 0 };
           clanStats[setObj.clan1].setsPlayed++;
@@ -722,7 +877,7 @@
         if (setObj.finalSetWinner === "team2" && setObj.clan2) {
           clanStats[setObj.clan2].setsWon++;
         }
-        // Character and Team Stats from games
+        // Character and team stats
         setObj.games.forEach(game => {
           game.team1.forEach(c => {
             if (c && c.name) {
@@ -760,65 +915,84 @@
       
       let html = "";
       // Player Stats Table
-      html += "<h3>Player Set Win Rates</h3>";
-      html += "<table><tr><th>Player</th><th>Sets Played</th><th>Sets Won</th><th>Win Rate</th></tr>";
+      html += `<h3>Player Set Win Rates</h3>
+               <table>
+                 <tr><th>Player</th><th>Sets Played</th><th>Sets Won</th><th>Win Rate</th></tr>`;
       let playersArr = Object.keys(playerStats).map(p => {
         const ps = playerStats[p];
-        const winRate = ps.setsPlayed > 0 ? (ps.setsWon/ps.setsPlayed) : 0;
-        return {name: p, setsPlayed: ps.setsPlayed, setsWon: ps.setsWon, winRate};
+        return {name: p, setsPlayed: ps.setsPlayed, setsWon: ps.setsWon, winRate: ps.setsPlayed > 0 ? ps.setsWon/ps.setsPlayed : 0};
       });
-      if (sortByWinRate) playersArr.sort((a,b)=> b.winRate - a.winRate);
+      playersArr.sort((a, b) => sortCharMode === "alphabetical" ? a.name.localeCompare(b.name) : b.winRate - a.winRate);
       playersArr.forEach(p => {
         html += `<tr><td>${p.name}</td><td>${p.setsPlayed}</td><td>${p.setsWon}</td><td>${(p.winRate*100).toFixed(1)}%</td></tr>`;
       });
-      html += "</table>";
+      html += `</table>`;
       
       // Clan Stats Table
-      html += "<h3>Clan Set Win Rates</h3>";
-      html += "<table><tr><th>Clan</th><th>Sets Played</th><th>Sets Won</th><th>Win Rate</th></tr>";
+      html += `<h3>Clan Set Win Rates</h3>
+               <table>
+                 <tr><th>Clan</th><th>Sets Played</th><th>Sets Won</th><th>Win Rate</th></tr>`;
       let clansArr = Object.keys(clanStats).map(c => {
         const cs = clanStats[c];
-        const winRate = cs.setsPlayed > 0 ? (cs.setsWon/cs.setsPlayed) : 0;
-        return {clan: c, setsPlayed: cs.setsPlayed, setsWon: cs.setsWon, winRate};
+        return {clan: c, setsPlayed: cs.setsPlayed, setsWon: cs.setsWon, winRate: cs.setsPlayed > 0 ? cs.setsWon/cs.setsPlayed : 0};
       });
-      if (sortByWinRate) clansArr.sort((a,b)=> b.winRate - a.winRate);
+      clansArr.sort((a, b) => sortTeamMode === "alphabetical" ? a.clan.localeCompare(b.clan) : b.winRate - a.winRate);
       clansArr.forEach(c => {
         html += `<tr><td>${c.clan}</td><td>${c.setsPlayed}</td><td>${c.setsWon}</td><td>${(c.winRate*100).toFixed(1)}%</td></tr>`;
       });
-      html += "</table>";
+      html += `</table>`;
       
-      // Character Stats Table
-      html += "<h3>Character Usage and Win Rates</h3>";
-      html += "<table><tr><th>Character</th><th>Used</th><th>Wins</th><th>Win Rate</th></tr>";
+      // Character Stats Table with image and name
+      html += `<h3>Character Usage and Win Rates</h3>
+               <table>
+                 <tr><th>Character</th><th>Used</th><th>Wins</th><th>Win Rate</th></tr>`;
       let charsArr = Object.keys(charStats).map(ch => {
         const cs = charStats[ch];
-        const winRate = cs.used > 0 ? (cs.wins/cs.used) : 0;
-        return {character: ch, used: cs.used, wins: cs.wins, winRate};
+        return {character: ch, used: cs.used, wins: cs.wins, winRate: cs.used > 0 ? cs.wins/cs.used : 0};
       });
-      if (sortByWinRate) charsArr.sort((a,b)=> b.winRate - a.winRate);
+      if(sortCharMode === "alphabetical") {
+        charsArr.sort((a,b)=> a.character.localeCompare(b.character));
+      } else if(sortCharMode === "usage") {
+        charsArr.sort((a,b)=> b.used - a.used);
+      } else {
+        charsArr.sort((a,b)=> b.winRate - a.winRate);
+      }
       charsArr.forEach(ch => {
-        html += `<tr><td>${ch.character}</td><td>${ch.used}</td><td>${ch.wins}</td><td>${(ch.winRate*100).toFixed(1)}%</td></tr>`;
+        const charObj = characters.find(c => c.name === ch.character);
+        const imgTag = charObj ? `<img src="${charObj.url}" alt="${ch.character}">` : "";
+        html += `<tr>
+                  <td class="char-cell">${imgTag}<div style="font-size:10px;">${ch.character}</div></td>
+                  <td>${ch.used}</td>
+                  <td>${ch.wins}</td>
+                  <td>${(ch.winRate*100).toFixed(1)}%</td>
+                 </tr>`;
       });
-      html += "</table>";
+      html += `</table>`;
       
       // Team Stats Table
-      html += "<h3>Team Win Rates</h3>";
-      html += "<table><tr><th>Team (3 characters)</th><th>Played</th><th>Wins</th><th>Win Rate</th></tr>";
+      html += `<h3>Team Win Rates</h3>
+               <table>
+                 <tr><th>Team (3 characters)</th><th>Played</th><th>Wins</th><th>Win Rate</th></tr>`;
       let teamsArr = Object.keys(teamStats).map(key => {
         const ts = teamStats[key];
-        const winRate = ts.played > 0 ? (ts.wins/ts.played) : 0;
-        return {team: key, played: ts.played, wins: ts.wins, winRate};
+        return {team: key, played: ts.played, wins: ts.wins, winRate: ts.played > 0 ? ts.wins/ts.played : 0};
       });
-      if (sortByWinRate) teamsArr.sort((a,b)=> b.winRate - a.winRate);
+      if(sortTeamMode === "alphabetical") {
+        teamsArr.sort((a,b)=> a.team.localeCompare(b.team));
+      } else if(sortTeamMode === "usage") {
+        teamsArr.sort((a,b)=> b.played - a.played);
+      } else {
+        teamsArr.sort((a,b)=> b.winRate - a.winRate);
+      }
       teamsArr.forEach(t => {
         html += `<tr><td>${t.team}</td><td>${t.played}</td><td>${t.wins}</td><td>${(t.winRate*100).toFixed(1)}%</td></tr>`;
       });
-      html += "</table>";
+      html += `</table>`;
       
       statsOutput.innerHTML = html;
     }
     
-    /***** Manage Page Functions *****/
+    /***** MANAGE PAGE FUNCTIONS *****/
     function renderClanList() {
       const list = document.getElementById("clanList");
       list.innerHTML = "";
@@ -860,7 +1034,6 @@
         renderClanList();
       }
     });
-    
     function renderPlayerList() {
       const list = document.getElementById("playerList");
       list.innerHTML = "";
@@ -919,7 +1092,7 @@
       }
     });
     
-    /***** Import Characters JSON *****/
+    /***** IMPORT CHARACTERS JSON *****/
     document.getElementById('loadJsonButton').addEventListener('click', () => {
       const fileInput = document.getElementById('jsonFile');
       const file = fileInput.files[0];
@@ -945,7 +1118,7 @@
       reader.readAsText(file);
     });
     
-    // Initial population of dropdowns
+    // Initial population of dropdowns for Manage page
     updateClanSelects();
     updatePlayerSelects();
     updatePlayerClanSelect();
